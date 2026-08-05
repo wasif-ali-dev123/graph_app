@@ -103,11 +103,29 @@ export default function SkillMap() {
 
         <div className="sm-detail">
           {!selected ? (
-            <div className="detail-empty">
-              <div className="de-icon">◈</div>
-              <div className="de-title">Select a skill</div>
-              <div className="de-sub">to see its connections across the graph</div>
-            </div>
+            <>
+              <div className="detail-header">
+                <h2 className="detail-title">All Skills</h2>
+                <span className="page-sub">{filtered.length} skills · click any to explore its graph connections</span>
+              </div>
+              <div className="all-skills-grid">
+                {loading
+                  ? Array.from({ length: 12 }).map((_, i) => (
+                      <div key={i} className="skeleton" style={{ height: 64 }} />
+                    ))
+                  : filtered.map((s) => (
+                      <button
+                        key={s.id}
+                        className="all-skill-card"
+                        onClick={() => handleSelect(s)}
+                      >
+                        <span className={`tag ${categoryColor[s.category] || 'tag-muted'}`}>{s.category}</span>
+                        <div className="asc-name">{s.name}</div>
+                        <div className="asc-count">{s.engineerCount} engineers</div>
+                      </button>
+                    ))}
+              </div>
+            </>
           ) : detailLoading ? (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {Array.from({ length: 4 }).map((_, i) => (

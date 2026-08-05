@@ -2,6 +2,12 @@
 
 A graph database application that maps engineers, skills, companies, and open roles as a connected graph — backed by CognoDB (Neo4j-compatible) and built with Node.js + React.
 
+**Live demo:** https://graphapp-production-146c.up.railway.app
+
+**Screen recording:** *Loom link*
+
+---
+
 ## Use Case
 
 TalentGraph answers relationship questions that relational databases make hard:
@@ -37,7 +43,7 @@ OPTIONAL MATCH (me)-[:WORKED_AT]->(c:Company)<-[:WORKED_AT]-(other)
 RETURN other, sharedSkills, collect(c.name) AS sharedCompanies
 ```
 
-Additionally, "shortest skill path between two engineers" is a variable-length path query that has no clean SQL equivalent — it requires recursive CTEs with unbounded depth. In Cypher: `shortestPath((a)-[:HAS_SKILL|KNOWS*..6]-(b))`.
+Additionally, "shortest skill path between two engineers" is a variable-length path query with no clean SQL equivalent — it requires recursive CTEs with unbounded depth. In Cypher: `shortestPath((a)-[:HAS_SKILL|KNOWS*..6]-(b))`.
 
 ## Data Model
 
@@ -90,7 +96,7 @@ OPTIONAL MATCH (me)-[:WORKED_AT]->(c:Company)<-[:WORKED_AT]-(other)
 RETURN other, sharedSkills, collect(DISTINCT c.name) AS sharedCompanies
 ORDER BY size(sharedSkills) DESC
 ```
-*Traverses: Engineer → Skill ← Engineer (skill co-occurrence) then Engineer → Company ← Engineer (shared employer). Combines two independent 2-hop paths into a single result — awkward in SQL without multiple self-joins.*
+Traverses Engineer → Skill ← Engineer (skill co-occurrence) then Engineer → Company ← Engineer (shared employer). Combines two independent 2-hop paths into a single result — awkward in SQL without multiple self-joins.
 
 ### 2. Shortest skill bridge between engineers (variable-length path)
 ```cypher
@@ -99,7 +105,7 @@ MATCH path = shortestPath(
 )
 RETURN nodes(path), length(path) AS hops
 ```
-*Uses Neo4j's built-in `shortestPath` over a heterogeneous relationship type list. The `*..6` means "up to 6 hops." This is a recursive graph problem; SQL has no built-in equivalent without recursive CTEs and pre-computed adjacency tables.*
+Uses Neo4j's built-in `shortestPath` over a heterogeneous relationship type list. The `*..6` means "up to 6 hops." This is a recursive graph problem; SQL has no built-in equivalent without recursive CTEs and pre-computed adjacency tables.
 
 ### 3. Role matcher — engineers ranked by skill coverage
 ```cypher
@@ -112,7 +118,7 @@ RETURN e, matched,
   toFloat(size(matched)) / size(requiredSkills) AS matchScore
 ORDER BY matchScore DESC
 ```
-*Finds the set difference between required skills and owned skills per engineer, then ranks by coverage ratio. The list comprehension `[s IN requiredSkills WHERE NOT ...]` is graph-native — no outer join needed.*
+Finds the set difference between required skills and owned skills per engineer, then ranks by coverage ratio. The list comprehension `[s IN requiredSkills WHERE NOT ...]` is graph-native — no outer join needed.
 
 ### 4. Most connected skills
 ```cypher
@@ -122,7 +128,7 @@ OPTIONAL MATCH (p:Project)-[:USES]->(s)
 RETURN s.name, count(DISTINCT e) + count(DISTINCT p) AS connections
 ORDER BY connections DESC LIMIT 12
 ```
-*Aggregates across two different relationship types in one pass. Shows which skills are most embedded in the graph.*
+Aggregates across two different relationship types in one pass. Shows which skills are most embedded in the graph.
 
 ## Setup
 
@@ -131,7 +137,7 @@ ORDER BY connections DESC LIMIT 12
 1. Go to [console.cognodb.com/signup](https://console.cognodb.com/signup) and create an account (no credit card required)
 2. Create a free **c0** instance and pick a region — it provisions in under a minute
 3. Copy your connection URI (format: `bolt+s://<instance-id>.databases.cognodb.cloud`) and generated password
-   > ⚠️ The password is shown **exactly once** — copy it immediately
+   > The password is shown **exactly once** — copy it immediately
 4. Your username is always **`cognodb`**
 
 ### 2. Configure environment
@@ -164,40 +170,9 @@ The seed script creates all nodes, relationships, and indexes. Takes ~10 seconds
 npm run dev
 ```
 
-Opens:
 - React client: http://localhost:5173
 - API server: http://localhost:3001
-
-### 5. Deploy (Railway)
-
-1. Push repo to GitHub
-2. Create new Railway project → "Deploy from GitHub repo"
-3. Set environment variables: `NEO4J_URI`, `NEO4J_USER`, `NEO4J_PASSWORD`, `NODE_ENV=production`
-4. Add build command: `npm install && cd client && npm install && npm run build`
-5. Start command: `npm start`
-
-## Project Structure
-
-```
-/
-├── server/
-│   ├── index.js          Express app + startup connectivity check
-│   ├── db.js             Neo4j driver singleton, runQuery helper
-│   ├── routes/           engineers, skills, companies, explore
-│   └── queries/index.js  All parameterized Cypher queries
-├── client/
-│   └── src/
-│       ├── pages/        Home, EngineerProfile, SkillMap, RoleMatcher
-│       └── components/   EngineerCard, NodeBadge, DbBanner, SkeletonCard
-├── seed/seed.js          Seed script — 30 engineers, 20 skills, 10 companies
-└── .env.example
-```
 
 ## Screenshots
 
 *Add screenshots of all 4 pages here after first run.*
-
-## Demo
-
-- Hosted: *link after deploy*
-- Recording: *Loom link*
