@@ -22,11 +22,11 @@ These are fundamentally graph traversal problems. The data is a web of engineers
 
 | Explore | Engineer Profile |
 |---|---|
-| ![Explore page](docs/screenshots/home.png) | ![Engineer profile with ego graph](docs/screenshots/engineer-profile.png) |
+| ![Explore page](docs/screenshots/home.png) | ![Engineer profile with ego graph](docs/screenshots/engineer_details.png) |
 
 | Skill Map | Role Matcher |
 |---|---|
-| ![Skill map](docs/screenshots/skill-map.png) | ![Role matcher ranked by skill coverage](docs/screenshots/role-matcher.png) |
+| ![Skill map](docs/screenshots/skill_map.png) | ![Role matcher ranked by skill coverage](docs/screenshots/role_matcher.png) |
 
 ## Why a Graph Database?
 
