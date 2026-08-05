@@ -18,6 +18,16 @@ TalentGraph answers relationship questions that relational databases make hard:
 
 These are fundamentally graph traversal problems. The data is a web of engineers connected to skills, to companies, to projects, and to each other — not rows in a table.
 
+## Screenshots
+
+| Explore | Engineer Profile |
+|---|---|
+| ![Explore page](docs/screenshots/home.png) | ![Engineer profile with ego graph](docs/screenshots/engineer-profile.png) |
+
+| Skill Map | Role Matcher |
+|---|---|
+| ![Skill map](docs/screenshots/skill-map.png) | ![Role matcher ranked by skill coverage](docs/screenshots/role-matcher.png) |
+
 ## Why a Graph Database?
 
 **The SQL comparison:** Finding "engineers who share ≥2 skills AND have worked at the same company" in SQL requires:
@@ -112,7 +122,7 @@ Uses Neo4j's built-in `shortestPath` over a heterogeneous relationship type list
 MATCH (r:Role {id: $roleId})-[:REQUIRES_SKILL]->(required:Skill)
 WITH r, collect(required) AS requiredSkills, collect(required.id) AS requiredIds
 MATCH (e:Engineer)-[:HAS_SKILL]->(s:Skill) WHERE s.id IN requiredIds
-WITH r, requiredSkills, e, collect(s) AS matched
+WITH r, requiredSkills, e, collect(DISTINCT s) AS matched
 RETURN e, matched,
   [s IN requiredSkills WHERE NOT s.id IN [ms IN matched | ms.id]] AS missing,
   toFloat(size(matched)) / size(requiredSkills) AS matchScore
@@ -172,13 +182,3 @@ npm run dev
 
 - React client: http://localhost:5173
 - API server: http://localhost:3001
-
-## Screenshots
-
-| Explore | Engineer Profile |
-|---|---|
-| ![Explore page](docs/screenshots/home.png) | ![Engineer profile with ego graph](docs/screenshots/engineer-profile.png) |
-
-| Skill Map | Role Matcher |
-|---|---|
-| ![Skill map](docs/screenshots/skill-map.png) | ![Role matcher ranked by skill coverage](docs/screenshots/role-matcher.png) |
