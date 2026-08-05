@@ -123,11 +123,12 @@ export async function getSkillById(id) {
   const records = await runQuery(`
     MATCH (s:Skill {id: $id})
     OPTIONAL MATCH (e:Engineer)-[hs:HAS_SKILL]->(s)
+    WITH s, collect(DISTINCT {id: e.id, name: e.name, title: e.title, level: hs.level, years: hs.years}) AS engineers
     OPTIONAL MATCH (p:Project)-[:USES]->(s)
+    WITH s, engineers, collect(DISTINCT {id: p.id, name: p.name}) AS projects
     OPTIONAL MATCH (c:Company)-[:HAS_ROLE]->(:Role)-[:REQUIRES_SKILL]->(s)
     RETURN s.id AS id, s.name AS name, s.category AS category,
-           collect(DISTINCT {id: e.id, name: e.name, title: e.title, level: hs.level, years: hs.years}) AS engineers,
-           collect(DISTINCT {id: p.id, name: p.name}) AS projects,
+           engineers, projects,
            collect(DISTINCT c.name) AS companies
   `, { id });
   return records.map(toPlain)[0] ?? null;
@@ -170,7 +171,7 @@ export async function matchEngineersForRole(roleId) {
     WITH r, collect(required) AS requiredSkills, collect(required.id) AS requiredIds
     MATCH (e:Engineer)-[:HAS_SKILL]->(s:Skill)
     WHERE s.id IN requiredIds
-    WITH r, requiredSkills, requiredIds, e, collect(s) AS matched
+    WITH r, requiredSkills, e, collect(DISTINCT s) AS matched
     WITH r, requiredSkills, e, matched,
          [s IN requiredSkills WHERE NOT s.id IN [ms IN matched | ms.id]] AS missing,
          size(matched) AS matchCount,
