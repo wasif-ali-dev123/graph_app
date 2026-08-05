@@ -1,4 +1,4 @@
-import { Routes, Route, NavLink, useLocation } from 'react-router-dom';
+import { Routes, Route, NavLink } from 'react-router-dom';
 import Home from './pages/Home.jsx';
 import EngineerProfile from './pages/EngineerProfile.jsx';
 import SkillMap from './pages/SkillMap.jsx';
