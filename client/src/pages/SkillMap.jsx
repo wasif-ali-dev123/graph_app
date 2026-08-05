@@ -54,7 +54,7 @@ export default function SkillMap() {
       <div className="page-header">
         <h1 className="page-title">Skill Map</h1>
         <p className="page-sub">
-          Select a skill to see every engineer, project, and company connected to it.
+          Browse all skills or select one to explore its connections across the graph.
         </p>
       </div>
 

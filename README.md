@@ -175,4 +175,10 @@ npm run dev
 
 ## Screenshots
 
-*Add screenshots of all 4 pages here after first run.*
+| Explore | Engineer Profile |
+|---|---|
+| ![Explore page](docs/screenshots/home.png) | ![Engineer profile with ego graph](docs/screenshots/engineer-profile.png) |
+
+| Skill Map | Role Matcher |
+|---|---|
+| ![Skill map](docs/screenshots/skill-map.png) | ![Role matcher ranked by skill coverage](docs/screenshots/role-matcher.png) |

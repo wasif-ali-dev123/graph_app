@@ -123,7 +123,10 @@ export async function getSkillById(id) {
   const records = await runQuery(`
     MATCH (s:Skill {id: $id})
     OPTIONAL MATCH (e:Engineer)-[hs:HAS_SKILL]->(s)
-    WITH s, collect(DISTINCT {id: e.id, name: e.name, title: e.title, level: hs.level, years: hs.years}) AS engineers
+    WITH s, e, hs ORDER BY
+      CASE hs.level WHEN 'senior' THEN 3 WHEN 'mid' THEN 2 ELSE 1 END DESC, hs.years DESC
+    WITH s, e, collect(hs)[0] AS bestRel
+    WITH s, collect(CASE WHEN e IS NOT NULL THEN {id: e.id, name: e.name, title: e.title, level: bestRel.level, years: bestRel.years} END) AS engineers
     OPTIONAL MATCH (p:Project)-[:USES]->(s)
     WITH s, engineers, collect(DISTINCT {id: p.id, name: p.name}) AS projects
     OPTIONAL MATCH (c:Company)-[:HAS_ROLE]->(:Role)-[:REQUIRES_SKILL]->(s)
